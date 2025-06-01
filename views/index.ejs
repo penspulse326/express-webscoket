@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        line-height: 1.6;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .message {
+        background: #e8f5e8;
+        padding: 20px;
+        border-radius: 5px;
+        border-left: 4px solid #4caf50;
+        margin: 20px 0;
+      }
+      .info {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+      }
+      code {
+        background: #f1f1f1;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1><%= title %></h1>
+
+      <div class="message">
+        <strong>📢 <%= message %></strong>
+      </div>
+
+      <div class="info">
+        <h3>🎉 EJS 模板引擎已成功配置！</h3>
+        <p>您的 Express 應用程式現在已經集成了 EJS 模板引擎。</p>
+
+        <h4>✨ 功能特色：</h4>
+        <ul>
+          <li>📁 視圖目錄設置在 <code>views/</code></li>
+          <li>🎨 靜態檔案目錄設置在 <code>public/</code></li>
+          <li>🔗 保留了原始的 API 端點 <code>/api</code></li>
+          <li>📱 支援響應式設計</li>
+        </ul>
+
+        <h4>🛠 使用方式：</h4>
+        <p>在您的路由中使用 <code>res.render('模板名稱', 資料)</code> 來渲染 EJS 模板。</p>
+      </div>
+
+      <p style="text-align: center; margin-top: 30px; color: #666">
+        當前時間: <%= new Date().toLocaleString('zh-TW') %>
+      </p>
+    </div>
+  </body>
+</html>
