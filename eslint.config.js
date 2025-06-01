@@ -31,4 +31,9 @@ export default tseslint.config(
       '@typescript-eslint/unbound-method': 'off',
     },
   },
+  {
+    rules: {
+      '@typescript-eslint/consistent-type-definitions': ['off'],
+    },
+  },
 );

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title %></title>
+    <title>WebSocket 聊天室</title>
     <style>
       body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -49,51 +49,82 @@
     <div class="container">
       <h1>WebSocket 聊天室</h1>
       <div id="ws-status">WebSocket 狀態：未連接</div>
-      <div id="messages"></div>
-      <input type="text" id="message-input" placeholder="輸入訊息" />
-      <button id="send-button">發送</button>
+      <button id="btn-start-chat">開始聊天</button>
+      <div id="chat-container"></div>
     </div>
 
     <script>
-      let ws;
+      document.addEventListener('DOMContentLoaded', () => {
+        let user = null;
+        let isChatting = false;
 
-      function connectWebSocket() {
-        ws = new WebSocket('ws://localhost:8080');
+        function connectWebSocket() {
+          const ws = new WebSocket('ws://localhost:8080');
 
-        ws.onopen = () => {
-          document.getElementById('ws-status').textContent = 'WebSocket 狀態：已連接';
-          console.log('WebSocket 已連接');
-        };
+          ws.onopen = () => {
+            document.getElementById('ws-status').textContent = 'WebSocket 狀態：已連接';
+            console.log('WebSocket 已連接');
+          };
 
-        ws.onclose = () => {
-          document.getElementById('ws-status').textContent = 'WebSocket 狀態：已斷開';
-          console.log('WebSocket 已斷開');
-        };
+          ws.onclose = () => {
+            document.getElementById('ws-status').textContent = 'WebSocket 狀態：已斷開';
+            console.log('WebSocket 已斷開');
+          };
 
-        ws.onmessage = (event) => {
-          console.log('收到訊息：', event.data);
+          ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.user) {
+              user = data.user;
+              console.log('我的 user id:', user);
+            }
 
-          const messages = JSON.parse(event.data);
-          const messagesContainer = document.getElementById('messages');
+            console.log('收到訊息：', data);
 
-          messagesContainer.innerHTML = '';
-          messages.forEach((message) => {
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            messagesContainer.appendChild(messageElement);
+            const messages = JSON.parse(event.data);
+            const messagesContainer = document.getElementById('messages');
+
+            messagesContainer.innerHTML = '';
+            messages.forEach((message) => {
+              const messageElement = document.createElement('div');
+              messageElement.innerHTML = `
+                <div class="message">
+                  <span class="user">${message.user.slice(0, 5)}</span>
+                  <span class="timestamp">${new Date(message.timestamp).toLocaleTimeString()}</span>
+                  <span class="content">${message.message}</span>
+                </div>
+              `;
+              messagesContainer.appendChild(messageElement);
+            });
+          };
+
+          ws.onerror = (error) => {
+            console.error('WebSocket 錯誤：', error);
+          };
+
+          document.getElementById('send-button').addEventListener('click', () => {
+            const message = document.getElementById('message-input').value;
+            const timestamp = Date.now();
+            ws.send(JSON.stringify({ message, timestamp, user }));
           });
-        };
+        }
 
-        ws.onerror = (error) => {
-          console.error('WebSocket 錯誤：', error);
-        };
-      }
-
-      connectWebSocket();
-
-      document.getElementById('send-button').addEventListener('click', () => {
-        const message = document.getElementById('message-input').value;
-        ws.send(message);
+        document.getElementById('btn-start-chat').addEventListener('click', () => {
+          if (!isChatting) {
+            isChatting = true;
+            document.getElementById('btn-start-chat').textContent = '停止聊天';
+            document.getElementById('chat-container').innerHTML = `
+              <div id="messages"></div>
+              <input type="text" id="message-input" placeholder="輸入訊息" />
+              <button id="send-button">發送</button>
+            `;
+            connectWebSocket();
+          } else {
+            isChatting = false;
+            document.getElementById('btn-start-chat').textContent = '開始聊天';
+            document.getElementById('chat-container').innerHTML = '';
+            ws.close();
+          }
+        });
       });
     </script>
   </body>
