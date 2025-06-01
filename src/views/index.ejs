@@ -72,6 +72,42 @@
       <p style="text-align: center; margin-top: 30px; color: #666">
         當前時間: <%= new Date().toLocaleString('zh-TW') %>
       </p>
+
+      <div id="ws-status">WebSocket 狀態：未連接</div>
+      <button onclick="connectWebSocket()">連接 WebSocket</button>
+      <button onclick="disconnectWebSocket()">斷開連接</button>
     </div>
+
+    <script>
+      let ws;
+
+      function connectWebSocket() {
+        ws = new WebSocket('ws://localhost:8080');
+
+        ws.onopen = function () {
+          document.getElementById('ws-status').textContent = 'WebSocket 狀態：已連接';
+          console.log('WebSocket 已連接');
+        };
+
+        ws.onclose = function () {
+          document.getElementById('ws-status').textContent = 'WebSocket 狀態：已斷開';
+          console.log('WebSocket 已斷開');
+        };
+
+        ws.onmessage = function (event) {
+          console.log('收到訊息：', event.data);
+        };
+
+        ws.onerror = function (error) {
+          console.error('WebSocket 錯誤：', error);
+        };
+      }
+
+      function disconnectWebSocket() {
+        if (ws) {
+          ws.close();
+        }
+      }
+    </script>
   </body>
 </html>
