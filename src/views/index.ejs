@@ -47,35 +47,11 @@
   </head>
   <body>
     <div class="container">
-      <h1><%= title %></h1>
-
-      <div class="message">
-        <strong>📢 <%= message %></strong>
-      </div>
-
-      <div class="info">
-        <h3>🎉 EJS 模板引擎已成功配置！</h3>
-        <p>您的 Express 應用程式現在已經集成了 EJS 模板引擎。</p>
-
-        <h4>✨ 功能特色：</h4>
-        <ul>
-          <li>📁 視圖目錄設置在 <code>views/</code></li>
-          <li>🎨 靜態檔案目錄設置在 <code>public/</code></li>
-          <li>🔗 保留了原始的 API 端點 <code>/api</code></li>
-          <li>📱 支援響應式設計</li>
-        </ul>
-
-        <h4>🛠 使用方式：</h4>
-        <p>在您的路由中使用 <code>res.render('模板名稱', 資料)</code> 來渲染 EJS 模板。</p>
-      </div>
-
-      <p style="text-align: center; margin-top: 30px; color: #666">
-        當前時間: <%= new Date().toLocaleString('zh-TW') %>
-      </p>
-
+      <h1>WebSocket 聊天室</h1>
       <div id="ws-status">WebSocket 狀態：未連接</div>
-      <button onclick="connectWebSocket()">連接 WebSocket</button>
-      <button onclick="disconnectWebSocket()">斷開連接</button>
+      <div id="messages"></div>
+      <input type="text" id="message-input" placeholder="輸入訊息" />
+      <button id="send-button">發送</button>
     </div>
 
     <script>
@@ -84,30 +60,41 @@
       function connectWebSocket() {
         ws = new WebSocket('ws://localhost:8080');
 
-        ws.onopen = function () {
+        ws.onopen = () => {
           document.getElementById('ws-status').textContent = 'WebSocket 狀態：已連接';
           console.log('WebSocket 已連接');
         };
 
-        ws.onclose = function () {
+        ws.onclose = () => {
           document.getElementById('ws-status').textContent = 'WebSocket 狀態：已斷開';
           console.log('WebSocket 已斷開');
         };
 
-        ws.onmessage = function (event) {
+        ws.onmessage = (event) => {
           console.log('收到訊息：', event.data);
+
+          const messages = JSON.parse(event.data);
+          const messagesContainer = document.getElementById('messages');
+
+          messagesContainer.innerHTML = '';
+          messages.forEach((message) => {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messagesContainer.appendChild(messageElement);
+          });
         };
 
-        ws.onerror = function (error) {
+        ws.onerror = (error) => {
           console.error('WebSocket 錯誤：', error);
         };
       }
 
-      function disconnectWebSocket() {
-        if (ws) {
-          ws.close();
-        }
-      }
+      connectWebSocket();
+
+      document.getElementById('send-button').addEventListener('click', () => {
+        const message = document.getElementById('message-input').value;
+        ws.send(message);
+      });
     </script>
   </body>
 </html>

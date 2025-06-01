@@ -34,6 +34,7 @@ app.listen(port, () => {
   console.log('=================================');
 });
 
+const messages: string[] = [];
 const wss = new WebSocketServer({ port: 8080 }, () => {
   console.log('=================================');
   console.log('🔌 WebSocket 伺服器已啟動');
@@ -51,6 +52,12 @@ wss.on('connection', (ws: WebSocket) => {
   ws.on('message', function message(data) {
     const message = Buffer.isBuffer(data) ? data.toString() : data;
     console.log('📨 收到訊息:', message);
+    messages.push(message as string);
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(messages));
+      }
+    });
   });
 
   ws.on('close', () => {
@@ -58,4 +65,6 @@ wss.on('connection', (ws: WebSocket) => {
     console.log('❌ WebSocket 連接已關閉');
     console.log('=================================');
   });
+
+  ws.send(JSON.stringify(messages) || []);
 });
